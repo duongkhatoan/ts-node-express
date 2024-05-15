@@ -22,7 +22,7 @@ type RequestCustom = Request & {
 
 export default function withContext({ client }: { client: any }) {
     return async (req: RequestCustom, res: Response, next: NextFunction) => {
-        // console.log(123);
+        
         const origin = req.get('origin');
         const user = req.user || {};
         const userId = user.id as string;
@@ -46,7 +46,7 @@ export default function withContext({ client }: { client: any }) {
             origin,
         };
 
-        // console.log(context);
+        
 
         req.context = context;
         next();

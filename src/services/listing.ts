@@ -45,7 +45,7 @@ export default {
                 ...options,
             });
 
-            console.log(listings);
+            // console.log(listings);
 
             return res.json({
                 success: true,

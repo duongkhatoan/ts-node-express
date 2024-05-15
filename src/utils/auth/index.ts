@@ -97,9 +97,7 @@ const tryLogin = async (args: { username: string; password: string, remember: bo
       deletedAt: { isSet: false }
     }
   });
-  console.log(
-    { username: username },
-  );
+  
 
   if (!user) {
     return {
@@ -121,7 +119,7 @@ const tryLogin = async (args: { username: string; password: string, remember: bo
   //   token generate
   const { token, refreshToken } = createTokens(user, remember);
 
-  console.log(user);
+  
 
   const updatedUser = await client.user.update({
     where: {

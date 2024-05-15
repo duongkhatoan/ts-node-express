@@ -7,6 +7,9 @@ import client from "./database"
 import withContext from './middlewares/with-context';
 import { refreshTokenUser } from "./utils/auth";
 import routes from './routes/v1'
+import websocket from '~/libs/WebSocket'
+import http from "http"
+
 
 
 dotenv.config();
@@ -15,12 +18,14 @@ type MiddlewareFunction = (req: RequestType, res: Response, next: NextFunction) 
 
 const SECRET1 = process.env.SECRET_KEY;
 const SECRET2 = process.env.REFRESH_KEY;
+const PORT = process.env.PORT || 5000;
 const app: Express = express();
 const corsOptions: cors.CorsOptions = {
   origin: "*",
   credentials: true,
   optionsSuccessStatus: 200,
 };
+const server = http.createServer(app)
 const run = async () => {
   try {
     const addTokens: MiddlewareFunction = async (req, res, next) => {
@@ -53,30 +58,34 @@ const run = async () => {
     app.use(addUser);
     app.use(bodyParser.json());
     app.use(withContext({ client }) as MiddlewareFunction);
-    app.listen(5000);
+    // app.listen(5000);
 
     app.get("/", (req: Request, res: Response) => {
       res.send("test + TypeScript Server");
     });
 
-    //  const data = await client.post.create({
-    //   data: {
-    //     name: "test",
-    //     content: "test",
-    //     slug: "test",
-    //     categoryId: "663dc57b0bddbbb8ce6f16c3",
-    //     userId: "663d9deebeeffeabb81c0c85",
-    //   }
-    //  })
-
     routes(app);
-
+    websocket.init(server)
+    websocket.on("POS", (data) => {
+      if (data === "ping") {
+        console.log(data, "test")
+        websocket.emit("POS", "pong")
+      }
+    })
 
 
   } catch (error) {
-    console.log(error);
+    console.log("error", error);
   }
 }
 run()
+server.listen(PORT, async (err?: Error) => {
+  if (err) {
+    console.error(err); // Log errors to the console 
+  } else {
+    console.log(`Server listening at http://localhost:${PORT}`); // Log the server's address
+  }
+});
+
 
 

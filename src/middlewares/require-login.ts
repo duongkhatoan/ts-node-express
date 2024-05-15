@@ -14,7 +14,6 @@ type RequestContext = Request & { context: Context };
 
 export const requireLogin = (req: Request, res: Response, next: NextFunction) => {
   const { user } = (req as RequestContext).context;
-  
 
   if (!user?.id) {
 

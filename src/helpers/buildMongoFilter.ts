@@ -101,7 +101,7 @@ const processFilter = (filter: any) => {
       // graphql = filter: { email_regex: "abc" }
       // output = {"email":{contains:"abc",mode:"insensitive"}}
       filters = { [processKey(key.replace("_regex", ""))]: { contains: `${filter[key]}`, mode: "insensitive" } }
-      console.log(filters);
+      
       
     }
     else {
