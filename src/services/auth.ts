@@ -1,7 +1,8 @@
 import _ from "lodash";
 import { tryLogin, tryRegister } from "~/utils/auth";
 import validateNewUser from "~/validators/user/newUser";
-
+import websocket from '~/libs/WebSocket'
+import { PrismaClient } from "@prisma/client";
 export default {
     login: async (req: any, res: any, next: any) => {
         try {
@@ -51,6 +52,8 @@ export default {
                 value,
                 { client }
             );
+            websocket.broadcastChange("Users", "create", result)
+
             res
                 .json({
                     ...result,
@@ -70,6 +73,9 @@ export default {
             where: {
                 id: user.id,
                 deletedAt: { isSet: false }
+            },
+            include: {
+                reservations: true,
             }
         })
 
@@ -79,7 +85,14 @@ export default {
         const { context } = req
         const { client, user } = context
 
+        const validator = await validateRequest(req.body, client);
 
+        if (!validator.success) {
+            return res.json({
+                success: false,
+                errors: validator.message
+            });
+        }
 
         if (!user || _.isEmpty(user)) return res.json({ me: null })
 
@@ -111,3 +124,17 @@ export default {
         res.json({ success: true, message: `${mode} favorite success` })
     }
 }
+const validateRequest = async (
+    args: any,
+    client: PrismaClient
+): Promise<{ success: boolean; message?: string }> => {
+    const listing = await client.listing.findFirst({
+        where: { id: args.listingId, deletedAt: { isSet: false } },
+    });
+
+    if (!listing) {
+        return { success: false, message: 'Listing not found' };
+    }
+
+    return { success: true };
+};

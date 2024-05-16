@@ -10,8 +10,6 @@ import routes from './routes/v1'
 import websocket from '~/libs/WebSocket'
 import http from "http"
 
-
-
 dotenv.config();
 type RequestType = Request & { token?: string; refreshToken?: string; user?: any, headers: any };
 type MiddlewareFunction = (req: RequestType, res: Response, next: NextFunction) => Promise<void>;
@@ -66,12 +64,7 @@ const run = async () => {
 
     routes(app);
     websocket.init(server)
-    websocket.on("POS", (data) => {
-      if (data === "ping") {
-        console.log(data, "test")
-        websocket.emit("POS", "pong")
-      }
-    })
+    
 
 
   } catch (error) {

@@ -119,7 +119,7 @@ const processFilter = (filter: any) => {
 
 // Export module
 export default (filter: any, withDeletedAt: boolean = false) => {
-  console.log(filter);
+  
   const newFilters = processFilter(filter);
   return { ...newFilters, ...(withDeletedAt ? { deletedAt: { isSet: false } } : {}) };
 }

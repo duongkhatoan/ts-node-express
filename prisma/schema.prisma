@@ -24,10 +24,11 @@ model User {
   createdAt      DateTime  @default(now())
   updatedAt      DateTime? @updatedAt
   deletedAt      DateTime?
-  favoriteIds   String[]  @db.ObjectId
+  favoriteIds    String[]  @db.ObjectId
 
-  posts   Post[]
-  Listing Listing[]
+  posts       Post[]
+  Listing     Listing[]
+  reservations Reservation[]
 
   @@map("users")
 }
@@ -85,5 +86,25 @@ model Listing {
 
   user User @relation(fields: [userId], references: [id])
 
+  reservations Reservation[]
+
   @@map("listings")
+}
+
+model Reservation {
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId     String    @db.ObjectId
+  listingId  String    @db.ObjectId
+  startDate  DateTime
+  endDate    DateTime
+  totalPrice Int
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  deletedAt  DateTime?
+
+  user User @relation(fields: [userId], references: [id])
+
+  listing Listing @relation(fields: [listingId], references: [id])
+
+  @@map("reservations")
 }
