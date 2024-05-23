@@ -8,6 +8,7 @@ import { PrismaClient } from "@prisma/client";
 
 
 
+
 interface Context {
     user: {
         id: string,
@@ -24,6 +25,8 @@ export default {
             const parsedFilter = tryParseJSON(filter)
             const parsedSort = tryParseJSON(sort)
             const parsedIncludes = tryParseJSON(includes)
+
+
             const options: { take?: number, orderBy?: any, skip: number } = {
                 skip: Number(skip),
 
@@ -43,11 +46,15 @@ export default {
 
             const reservations = await client.reservation.findMany({
                 where: buildMongoFilter(parsedFilter, true),
-                include: parsedIncludes || {},
+                include: parsedIncludes || {
+                    listing: true,
+                },
                 ...options,
             });
 
-            // console.log(reservations);
+
+
+
 
             return res.json({
                 success: true,
@@ -58,25 +65,27 @@ export default {
                 "Error occurred while fetching reservations from database:",
                 error
             );
+            return res.json({ success: false, message: "Error occurred while fetching reservations from database" });
             throw new Error("Error occurred while fetching reservations from database");
         }
     },
     // GET: /api/reservations/:id
     view: async (req: any, res: any) => {
         try {
+            const { filter, includes, sort, limit, skip = 0 } = req.query
             const reservationId = req.params.id;
-            console.log(reservationId);
             const { context } = req;
             const { client } = context;
+            const parsedIncludes = includes ? tryParseJSON(includes) : {}
             const response = await client.reservation.findFirst(
                 {
                     where: { id: reservationId, deletedAt: { isSet: false } },
-                    include: {
-                        user: true,
-                        listing: true
-                    }
+                    include: parsedIncludes
+
                 }
             );
+
+            console.log(parsedIncludes);
             return res.json({
                 success: true,
                 data: response,
@@ -203,7 +212,7 @@ export default {
             const { client } = context;
             const { id } = req.params;
 
-            const currentReservation = await client.post.findFirst(
+            const currentReservation = await client.reservation.findFirst(
                 {
                     where: {
                         id,

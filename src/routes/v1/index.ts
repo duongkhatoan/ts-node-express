@@ -11,5 +11,5 @@ export default function routes(app: any) {
     app.use("/api/categories", requireLogin, categoryRouter);
     app.use("/api/posts", requireLogin, postRouter);
     app.use("/api/listings", listingRouter);
-    app.use("/api/reservations", reservationRouter);
+    app.use("/api/reservations", requireLogin, reservationRouter);
 };

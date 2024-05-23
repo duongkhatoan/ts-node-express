@@ -14,17 +14,34 @@ interface Context {
 }
 type RequestContext = Request & { context: Context };
 
+interface IListingParams {
+    guestCount_gte?: number,
+    roomCount_gte?: number,
+    bathroomCount_gte?: number,
+    startDate_gte?: Date,
+    endDate_lte?: Date,
+    locationValue?: string
+    price?: number
+    category?: string
+    title?: string
+    description?: string
+    NOT?: any
+}
+
 export default {
     // GET: /api/categories
     list: async (req: any, res: any) => {
         const { filter, includes, sort, limit, skip = 0 } = req.query
+        console.log(sort);
         try {
-            const parsedFilter = tryParseJSON(filter)
+            const parsedFilter: IListingParams = tryParseJSON(filter)
+
             const parsedSort = tryParseJSON(sort)
+
+            // console.log(parsedSort);
             const parsedIncludes = tryParseJSON(includes)
             const options: { take?: number, orderBy?: any, skip: number } = {
                 skip: Number(skip),
-
             }
 
             if (limit) {
@@ -33,49 +50,57 @@ export default {
 
             if (parsedSort) {
                 options.orderBy = buildMysqlOrders(parsedSort)
+                console.log(options.orderBy);
             }
 
             const { context } = req;
             const { client } = context || {};
 
-
             const listings = await client.listing.findMany({
                 where: buildMongoFilter(parsedFilter, true),
-                include: parsedIncludes || {
-                    reservations: true,
-                    user: true,
-                },
+                include: parsedIncludes,
                 ...options,
             });
 
-            // console.log(listings);
+            const totalListings = await client.listing.count({
+                where: buildMongoFilter(parsedFilter, true),
+            });
+
+
+            const hasMore = totalListings > options.skip + listings.length;
 
             return res.json({
                 success: true,
                 data: listings,
+                count: listings.length,
+                hasMore,
             });
         } catch (error) {
             console.error(
                 "Error occurred while fetching listings from database:",
                 error
             );
+
+            return res.json({ success: false, message: "Error occurred while fetching listings" });
             throw new Error("Error occurred while fetching listings from database");
         }
     },
     // GET: /api/categories/:id
     view: async (req: any, res: any) => {
+
         try {
+            const { filter, includes, sort, limit, skip = 0 } = req.query
             const listingId = req.params.id;
             console.log(listingId);
             const { context } = req;
             const { client } = context;
+            const parsedIncludes = includes ? tryParseJSON(includes) : {}
+
+            console.log(parsedIncludes.reservations.where.deletedAt);
             const response = await client.listing.findFirst(
                 {
                     where: { id: listingId, deletedAt: { isSet: false } },
-                    include: {
-                        user: true,
-                        reservations: true
-                    }
+                    include: parsedIncludes
                 }
             );
             return res.json({

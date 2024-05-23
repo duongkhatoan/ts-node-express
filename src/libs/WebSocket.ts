@@ -19,17 +19,16 @@ class WebSocket {
         console.log("Socket Unauthorized")
     }
     __authenticate(socket: Socket, next: any) {
-        console.log("authenticate");
+        
 
         const { auth, headers } = socket.handshake
 
-        console.log(!auth.token && !headers.token);
+        
         if (!auth.token && !headers.token) {
             return this.__handleUnauthorize(socket)
         }
         const token = auth.token || headers.token
 
-        console.log(token, "token")
         try {
             if (!token) {
                 throw new Error()
@@ -56,7 +55,7 @@ class WebSocket {
                 socket.join(`${collection}-${action}`)
             }
         })
-        console.log(socket.rooms)
+        
 
     }
     init(server: any) {

@@ -74,10 +74,17 @@ export default {
                 id: user.id,
                 deletedAt: { isSet: false }
             },
-            include: {
-                reservations: true,
+        })
+        const result = await client.listing.findMany({
+            where: {
+                id: {
+                    in: currentUser.favoriteIds
+                },
+                deletedAt: { isSet: false }
             }
         })
+
+        currentUser.favoriteListings = result
 
         res.json({ me: currentUser })
     },
@@ -122,6 +129,33 @@ export default {
             }
         })
         res.json({ success: true, message: `${mode} favorite success` })
+    },
+    getFavoriteListings: async (req: any, res: any, next: any) => {
+        try {
+            const { context } = req
+            const { client, user } = context
+
+            const currentUser = await client.user.findFirst({
+                where: {
+                    id: user.id,
+                    deletedAt: { isSet: false }
+                }
+            })
+
+            const result = await client.listing.findMany({
+                where: {
+                    id: {
+                        in: currentUser.favoriteIds
+                    },
+                    deletedAt: { isSet: false }
+                }
+            })
+            return res.json({ success: true, data: result })
+        }
+        catch (error: any) {
+            return res.json({ success: false, error: error.message })
+        }
+
     }
 }
 const validateRequest = async (

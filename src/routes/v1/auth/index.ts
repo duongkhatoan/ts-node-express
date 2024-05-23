@@ -8,6 +8,7 @@ router.post("/login", AuthServices.login);
 router.post("/signup", AuthServices.register)
 router.get("/me", AuthServices.me)
 router.post("/addFavorite", requireLogin, AuthServices.addFavorites)
+router.get("/favorite-listings", requireLogin, AuthServices.getFavoriteListings)
 
 
 
