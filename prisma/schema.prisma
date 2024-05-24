@@ -25,9 +25,10 @@ model User {
   updatedAt      DateTime? @updatedAt
   deletedAt      DateTime?
   favoriteIds    String[]  @db.ObjectId
+  role           Int       @default(0)
 
-  posts       Post[]
-  Listing     Listing[]
+  posts        Post[]
+  Listing      Listing[]
   reservations Reservation[]
 
   @@map("users")

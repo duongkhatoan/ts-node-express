@@ -97,7 +97,9 @@ const tryLogin = async (args: { username: string; password: string, remember: bo
       deletedAt: { isSet: false }
     }
   });
-  
+
+
+
 
   if (!user) {
     return {
@@ -119,7 +121,7 @@ const tryLogin = async (args: { username: string; password: string, remember: bo
   //   token generate
   const { token, refreshToken } = createTokens(user, remember);
 
-  
+
 
   const updatedUser = await client.user.update({
     where: {
@@ -129,6 +131,8 @@ const tryLogin = async (args: { username: string; password: string, remember: bo
       lastLoggedInAt: new Date(),
     },
   });
+
+  updatedUser.accessAdmin = updatedUser.role !== 0 ? true : false;
 
   return {
     success: true,
