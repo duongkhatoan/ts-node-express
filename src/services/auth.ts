@@ -67,8 +67,6 @@ export default {
     me: async (req: any, res: any, next: any) => {
         const { context } = req
         const { client, user } = context
-
-        if (!user || _.isEmpty(user)) return res.json({ me: null })
         const currentUser = await client.user.findFirst({
             where: {
                 id: user.id,
@@ -83,6 +81,7 @@ export default {
                 deletedAt: { isSet: false }
             }
         })
+        currentUser.accessAdmin = currentUser.role !== 0 ? true : false;
 
         currentUser.favoriteListings = result
 
