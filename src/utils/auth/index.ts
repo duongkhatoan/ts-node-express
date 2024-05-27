@@ -142,7 +142,7 @@ const tryLogin = async (args: { username: string; password: string, remember: bo
   };
 };
 
-const tryRegister = async (args: { username: string; password: string, email: string, fullName: string }, context: { client: any }) => {
+const tryRegister = async (args: { username: string; password: string, email: string, firstName: string, lastName: string }, context: { client: any }) => {
   const { username, password, email } = args || {};
   const { client } = context;
 

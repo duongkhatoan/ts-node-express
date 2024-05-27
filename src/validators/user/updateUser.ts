@@ -5,7 +5,7 @@ export default Joi.object({
     username: Joi.string().min(3).max(30).required(),
     firstName: Joi.string().required(),
     lastName: Joi.string().required(),
-    password: Joi.string().required(),
+    password: Joi.string().optional(),
     avatarUrl: Joi.string().uri().optional(),
 });
 
