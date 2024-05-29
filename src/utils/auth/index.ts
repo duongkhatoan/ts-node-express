@@ -156,6 +156,7 @@ const tryRegister = async (args: { username: string; password: string, email: st
       deletedAt: { isSet: false }
     }
   });
+  // console.log(email,user);
   if (userExist) {
     return {
       success: false,

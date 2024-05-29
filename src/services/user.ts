@@ -37,7 +37,8 @@ export default {
         try {
             const parsedFilter: IListingParams = tryParseJSON(filter)
 
-            const parsedSort = tryParseJSON(sort)
+            const parsedSort = sort
+
 
             const parsedIncludes = tryParseJSON(includes)
             const options: { take?: number, orderBy?: any, skip: number } = {
@@ -68,7 +69,7 @@ export default {
             return res.json({
                 success: true,
                 data: users,
-                count: userCount.length,
+                count: userCount,
             });
         } catch (error) {
             console.error(
@@ -208,6 +209,13 @@ export default {
                     message: "User not found",
                 });
             }
+
+            if (currentUser.role !== 0) {
+                return res.status(403).json({
+                    success: false,
+                    message: "You don't have permission to delete this user",
+                });
+            }
             await client.user.update({
                 where: {
                     id
@@ -226,6 +234,29 @@ export default {
             throw new Error("Error occurred while deleting post from database");
         }
     },
+    // delete multiple
+    deleteMultiple: async (req: any, res: any) => {
+        try {
+            const { context } = req;
+            const { client } = context;
+            const { ids } = req.body;
+            const response = await client.user.deleteMany({
+                where: {
+                    id: {
+                        in: ids
+                    }
+                }
+            })
+            return res.json({
+                success: true,
+                message: "Deleted User successfully",
+            });
+        } catch (error) {
+            console.error("Error occurred while deleting user:", error);
+            return res.json({ success: false, message: "Error occurred while deleting user" });
+            throw new Error("Error occurred while deleting user from database");
+        }
+    }
     // likePost: async (req: RequestContext, res: Response) => {
     //     try {
     //         const { context, body } = req;
