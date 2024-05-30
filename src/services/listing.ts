@@ -32,7 +32,7 @@ export default {
     // GET: /api/categories
     list: async (req: any, res: any) => {
         const { filter, includes, sort, limit, skip = 0 } = req.query
-        console.log(sort);
+
         try {
             const parsedFilter: IListingParams = tryParseJSON(filter)
 
@@ -72,7 +72,7 @@ export default {
             return res.json({
                 success: true,
                 data: listings,
-                count: listings.length,
+                count: totalListings,
                 hasMore,
             });
         } catch (error) {
@@ -162,7 +162,7 @@ export default {
             }
 
 
-            const currentPost = await client.post.findFirst(
+            const currentListing = await client.listing.findFirst(
                 {
                     where: {
                         id,
@@ -170,29 +170,16 @@ export default {
                     }
                 }
             )
-            if (!currentPost) {
+            if (!currentListing) {
                 return res.status(404).json({
                     success: false,
-                    message: "Post not found",
+                    message: "Listing not found",
                 });
             }
 
-            if (value.slug) {
-                const existSlug = await client.post.findFirst({
-                    where: {
-                        slug: value.slug
-                    }
-                })
 
-                if (existSlug) {
-                    return res.json({
-                        success: false,
-                        message: "Slug already exists"
-                    })
-                }
-            }
 
-            await client.post.update(
+            await client.listing.update(
                 {
                     where: {
                         id
@@ -205,11 +192,12 @@ export default {
 
             return res.json({
                 success: true,
-                message: "Updated post successfully",
+                message: "Updated listing successfully",
             });
         } catch (error) {
-            console.error("Error occurred while updating post:", error);
-            throw new Error("Error occurred while updating post");
+            console.error("Error occurred while updating listing:", error);
+            return res.json({ status: false, message: "Failed to update listing" })
+            throw new Error("Error occurred while updating listing");
         }
     },
     // DELETE: /api/categories/:id

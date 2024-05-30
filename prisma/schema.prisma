@@ -87,6 +87,7 @@ model Listing {
   country       String?
   latlng        Int[]
   region        String?
+  status        String    @default("pending")
 
   user User @relation(fields: [userId], references: [id])
 

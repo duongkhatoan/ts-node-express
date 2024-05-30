@@ -12,6 +12,7 @@ const listingSchema = Joi.object({
     country: Joi.string().optional(),
     latlng: Joi.array().items(Joi.number()).length(2).required(),
     region: Joi.string().optional(),
+    status: Joi.string().optional().allow('pending', 'approval', 'rejected'),
 })
 
 export default listingSchema
